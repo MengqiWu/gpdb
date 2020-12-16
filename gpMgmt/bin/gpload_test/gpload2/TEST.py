@@ -427,13 +427,15 @@ def get_table_name():
     except Exception as e:
         errorMessage = str(e)
         print ('could not connect to database: ' + errorMessage)
-    queryString = """SELECT relname
-                     from pg_class
-                     WHERE relname
-                     like 'ext_gpload_reusable%'
-                     OR relname
-                     like 'staging_gpload_reusable%';"""
+    queryString = """SELECT sch.table_schema, cls.relname
+                     FROM pg_class AS cls, information_schema.tables AS sch
+                     WHERE
+                     (cls.relname LIKE 'ext_gpload_reusable%'
+                     OR
+                     relname LIKE 'staging_gpload_reusable%')
+                     AND cls.relname=sch.table_name;"""
     resultList = db.query(queryString.encode('utf-8')).getresult()
+    print(resultList)
     return resultList
 
 def drop_tables():
@@ -449,14 +451,15 @@ def drop_tables():
 
     tableList = get_table_name()
     for i in tableList:
-        name = i[0]
+        schema = i[0]
+        name = i[1]
         match = re.search('ext_gpload',name)
         if match:
-            queryString = "DROP EXTERNAL TABLE %s;" % name
+            queryString = f'DROP EXTERNAL TABLE "{schema}"."{name}";'
             db.query(queryString.encode('utf-8'))
 
         else:
-            queryString = "DROP TABLE %s;" % name
+            queryString = f'DROP TABLE "{schema}"."{name}";'
             db.query(queryString.encode('utf-8'))
 
 class PSQLError(Exception):
@@ -1059,3 +1062,48 @@ def test_60_gpload_local_hostname():
     f.write("\\! gpload -f "+mkpath('config/config_file3')+"\n")
     f.close()
 
+
+@prepare_before_test(num=601)
+def test_601_gpload_yaml_existing_external_schema():
+    "601 test gpload works with an existing external schema"
+    drop_tables()
+    schema = "ext_schema_test"
+    psql_run(cmd=f'CREATE SCHEMA IF NOT EXISTS {schema};',
+             dbname='reuse_gptest')
+    write_config_file(externalSchema=schema)
+
+
+# FIXME: The behaviour doesn't match the document
+# > Required when EXTERNAL is declared. The name of the schema of the external
+# > table.
+# > If the schema does not exist, an error is returned.
+@prepare_before_test(num=602)
+def test_602_gpload_yaml_non_existing_external_schema():
+    "602 test gpload works with an non-existing external schema. \
+     The schema should be created automatically."
+    drop_tables()
+    schema = "non_ext_schema_test"
+    psql_run(cmd=f'DROP SCHEMA IF EXISTS {schema} CASCADE;',
+             dbname='reuse_gptest')
+    write_config_file(externalSchema=schema)
+
+
+@prepare_before_test(num=603)
+def test_603_gpload_yaml_percent():
+    "603 test gpload works with percent sign(%) to use the table's schema"
+    schema = "table_schema_test"
+    psql_run(cmd=f'CREATE SCHEMA IF NOT EXISTS {schema};',
+             dbname='reuse_gptest')
+    query = f"""CREATE TABLE {schema}.texttable (
+            s1 text, s2 text, s3 text, dt timestamp,
+            n1 smallint, n2 integer, n3 bigint, n4 decimal,
+            n5 numeric, n6 real, n7 double precision) DISTRIBUTED BY (n1);"""
+    psql_run(cmd=query, dbname='reuse_gptest')
+    write_config_file(table=f'{schema}.texttable', externalSchema='\'%\'')
+
+
+@prepare_before_test(num=604)
+def test_604_gpload_yaml_percent_default_schema():
+    "604 test gpload works with percent sign(%) to use the default table's\
+    schema"
+    write_config_file(externalSchema='\'%\'')
