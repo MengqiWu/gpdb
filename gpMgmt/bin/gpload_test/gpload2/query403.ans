@@ -1,0 +1,16 @@
+2020-12-16 17:37:59|INFO|gpload session started 2020-12-16 17:37:59
+2020-12-16 17:37:59|INFO|started gpfdist -p 8081 -P 8082 -f "/home/cc/repo/gpdb/gpMgmt/bin/gpload_test/gpload2/data/external_file_01.txt" -t 30
+2020-12-16 17:37:59|INFO|did not find an external table to reuse. creating "table_schema_test".ext_gpload_reusable_624f63b4_3f82_11eb_9088_7085c2381836
+2020-12-16 17:37:59|INFO|running time: 0.12 seconds
+2020-12-16 17:37:59|INFO|rows Inserted          = 16
+2020-12-16 17:37:59|INFO|rows Updated           = 0
+2020-12-16 17:37:59|INFO|data formatting errors = 0
+2020-12-16 17:37:59|INFO|gpload succeeded
+2020-12-16 17:37:59|INFO|gpload session started 2020-12-16 17:37:59
+2020-12-16 17:37:59|INFO|started gpfdist -p 8081 -P 8082 -f "/home/cc/repo/gpdb/gpMgmt/bin/gpload_test/gpload2/data/external_file_01.txt" -t 30
+2020-12-16 17:37:59|INFO|did not find an external table to reuse. creating "table_schema_test".ext_gpload_reusable_62713052_3f82_11eb_8c62_7085c2381836
+2020-12-16 17:37:59|INFO|running time: 0.14 seconds
+2020-12-16 17:37:59|INFO|rows Inserted          = 16
+2020-12-16 17:37:59|INFO|rows Updated           = 0
+2020-12-16 17:37:59|INFO|data formatting errors = 0
+2020-12-16 17:37:59|INFO|gpload succeeded

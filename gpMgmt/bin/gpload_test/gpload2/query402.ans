@@ -1,0 +1,18 @@
+2020-12-16 16:40:01|INFO|gpload session started 2020-12-16 16:40:01
+2020-12-16 16:40:01|INFO|setting schema 'public' for table 'texttable'
+2020-12-16 16:40:01|INFO|started gpfdist -p 8081 -P 8082 -f "/home/cc/repo/gpdb/gpMgmt/bin/gpload_test/gpload2/data/external_file_01.txt" -t 30
+2020-12-16 16:40:01|INFO|did not find an external table to reuse. creating non_ext_schema_test.ext_gpload_reusable_4984338a_3f7a_11eb_b631_7085c2381836
+2020-12-16 16:40:01|ERROR|unexpected error -- backtrace written to log file
+2020-12-16 16:40:01|INFO|rows Inserted          = 0
+2020-12-16 16:40:01|INFO|rows Updated           = 0
+2020-12-16 16:40:01|INFO|data formatting errors = 0
+2020-12-16 16:40:01|INFO|gpload failed
+2020-12-16 16:40:01|INFO|gpload session started 2020-12-16 16:40:01
+2020-12-16 16:40:01|INFO|setting schema 'public' for table 'texttable'
+2020-12-16 16:40:01|INFO|started gpfdist -p 8081 -P 8082 -f "/home/cc/repo/gpdb/gpMgmt/bin/gpload_test/gpload2/data/external_file_01.txt" -t 30
+2020-12-16 16:40:01|INFO|did not find an external table to reuse. creating non_ext_schema_test.ext_gpload_reusable_49a49b16_3f7a_11eb_b215_7085c2381836
+2020-12-16 16:40:01|ERROR|unexpected error -- backtrace written to log file
+2020-12-16 16:40:01|INFO|rows Inserted          = 0
+2020-12-16 16:40:01|INFO|rows Updated           = 0
+2020-12-16 16:40:01|INFO|data formatting errors = 0
+2020-12-16 16:40:01|INFO|gpload failed

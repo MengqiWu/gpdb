@@ -584,6 +584,7 @@ def test_06_gpload_formatOpts_delimiter():
     copy_data('external_file_03.txt','data_file.txt')
     write_config_file(reuse_tables=True,format='text',file='data_file.txt',table='texttable',delimiter="\"'\"")
 
+
 @prepare_before_test(num=7)
 def test_07_gpload_reuse_table_insert_mode_without_reuse():
     "7  gpload insert mode without reuse"
@@ -1063,9 +1064,9 @@ def test_60_gpload_local_hostname():
     f.close()
 
 
-@prepare_before_test(num=601)
-def test_601_gpload_yaml_existing_external_schema():
-    "601 test gpload works with an existing external schema"
+@prepare_before_test(num=401)
+def test_401_gpload_yaml_existing_external_schema():
+    "401 test gpload works with an existing external schema"
     drop_tables()
     schema = "ext_schema_test"
     psql_run(cmd=f'CREATE SCHEMA IF NOT EXISTS {schema};',
@@ -1077,9 +1078,9 @@ def test_601_gpload_yaml_existing_external_schema():
 # > Required when EXTERNAL is declared. The name of the schema of the external
 # > table.
 # > If the schema does not exist, an error is returned.
-@prepare_before_test(num=602)
-def test_602_gpload_yaml_non_existing_external_schema():
-    "602 test gpload works with an non-existing external schema. \
+@prepare_before_test(num=402)
+def test_402_gpload_yaml_non_existing_external_schema():
+    "402 test gpload works with an non-existing external schema. \
      The schema should be created automatically."
     drop_tables()
     schema = "non_ext_schema_test"
@@ -1088,9 +1089,9 @@ def test_602_gpload_yaml_non_existing_external_schema():
     write_config_file(externalSchema=schema)
 
 
-@prepare_before_test(num=603)
-def test_603_gpload_yaml_percent():
-    "603 test gpload works with percent sign(%) to use the table's schema"
+@prepare_before_test(num=403)
+def test_403_gpload_yaml_percent_external_schema():
+    "403 test gpload works with percent sign(%) to use the table's schema"
     schema = "table_schema_test"
     psql_run(cmd=f'CREATE SCHEMA IF NOT EXISTS {schema};',
              dbname='reuse_gptest')
@@ -1102,8 +1103,72 @@ def test_603_gpload_yaml_percent():
     write_config_file(table=f'{schema}.texttable', externalSchema='\'%\'')
 
 
-@prepare_before_test(num=604)
-def test_604_gpload_yaml_percent_default_schema():
-    "604 test gpload works with percent sign(%) to use the default table's\
+@prepare_before_test(num=404)
+def test_404_gpload_yaml_percent_default_external_schema():
+    "404 test gpload works with percent sign(%) to use the default table's\
     schema"
+    drop_tables()
     write_config_file(externalSchema='\'%\'')
+
+
+@prepare_before_test(num=430)
+def test_430_gpload_yaml_table_empty_string():
+    "430 test gpload reports error if table is an empty string"
+    write_config_file(table="")
+
+
+@prepare_before_test(num=431)
+def test_431_gpload_yaml_table_not_exist():
+    "431 test gpload reports error if the target table doesn't exist"
+    write_config_file(table="non_exist_table")
+
+
+@prepare_before_test(num=432)
+def test_432_gpload_yaml_table_schema_not_exist():
+    "432 test gpload reports error if the target schema doesn't exist"
+    write_config_file(table="non_exist_schema.table")
+
+
+@prepare_before_test(num=433)
+def test_433_gpload_yaml_table_with_schema():
+    "433 test gpload works with schame in the table string"
+    schema = "table_schema_test"
+    psql_run(cmd=f'CREATE SCHEMA IF NOT EXISTS {schema};',
+             dbname='reuse_gptest')
+    query = f"""DROP TABLE {schema}.texttable IF EXISTS;
+            CREATE TABLE {schema}.texttable (
+            s1 text, s2 text, s3 text, dt timestamp,
+            n1 smallint, n2 integer, n3 bigint, n4 decimal,
+            n5 numeric, n6 real, n7 double precision) DISTRIBUTED BY (n1);"""
+    psql_run(cmd=query, dbname='reuse_gptest')
+    write_config_file(table=f'{schema}.texttable')
+
+# TODO: Add cases for special chars in the table name
+
+
+@prepare_before_test(num=460, times=1)
+def test_460_gpload_mode_default():
+    "460 test gpload works in the default insert mode"
+    drop_tables()
+    ok, out = psql_run(cmd='TRUNCATE TABLE texttable', dbname='reuse_gptest')
+    write_config_file(mode="")
+    f = open(mkpath('query460.sql'), 'a')
+    f.write("\\! psql -d reuse_gptest -c 'select count(*) from texttable;'")
+    f.close()
+
+
+@prepare_before_test(num=461, times=1)
+def test_461_gpload_mode_insert():
+    "461 test gpload works in the insert mode"
+    drop_tables()
+    ok, out = psql_run(cmd='TRUNCATE TABLE texttable', dbname='reuse_gptest')
+    write_config_file(mode='insert')
+    f = open(mkpath('query461.sql'), 'a')
+    f.write("\\! psql -d reuse_gptest -c 'select count(*) from texttable;'")
+    f.close()
+
+
+@prepare_before_test(num=490, times=1)
+def test_490_gpload_mode_update_error_no_columns_in_yaml():
+    "490 test gpload fails if UPDATE_COLUMNS is not specified in update mode"
+    write_config_file(mode='update', update_columns='')
