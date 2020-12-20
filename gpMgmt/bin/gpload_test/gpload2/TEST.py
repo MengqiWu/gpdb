@@ -1161,7 +1161,7 @@ def test_460_gpload_mode_default():
 def test_461_gpload_mode_insert():
     "461 test gpload works in the insert mode"
     drop_tables()
-    ok, out = psql_run(cmd='TRUNCATE TABLE texttable', dbname='reuse_gptest')
+    psql_run(cmd='TRUNCATE TABLE texttable', dbname='reuse_gptest')
     write_config_file(mode='insert')
     f = open(mkpath('query461.sql'), 'a')
     f.write("\\! psql -d reuse_gptest -c 'select count(*) from texttable;'")
@@ -1171,4 +1171,26 @@ def test_461_gpload_mode_insert():
 @prepare_before_test(num=490, times=1)
 def test_490_gpload_mode_update_error_no_columns_in_yaml():
     "490 test gpload fails if UPDATE_COLUMNS is not specified in update mode"
-    write_config_file(mode='update', update_columns='')
+    write_config_file(mode='update', update_columns=[])
+
+
+@prepare_before_test(num=491, times=1)
+def test_491_gpload_mode_update_error_no_columns_matches():
+    "491 test gpload fails if UPDATE_COLUMNS doesn't match columns"
+    write_config_file(mode='update', update_columns=['no_exists_column'])
+
+
+@prepare_before_test(num=492, times=1)
+def test_492_gpload_mode_update_error_any_columns_not_match():
+    "492 test gpload fails if any of UPDATE_COLUMNS doesn't match columns"
+    write_config_file(mode='update', update_columns=['n2', 'no_exists_column'])
+
+
+@prepare_before_test(num=493, times=2)
+def test_493_gpload_mode_update_one_match_columns():
+    "493 test gpload works if UPDATE_COLUMNS has one column and it matches"
+    psql_run(cmd='TRUNCATE TABLE texttable', dbname='reuse_gptest')
+    f = open(mkpath('query493.sql'), 'a')
+    f.write("\\! gpload -f " + mkpath('config/config_file') + "\n")
+    f.close()
+    write_config_file(mode='update', update_columns=['n2'])
